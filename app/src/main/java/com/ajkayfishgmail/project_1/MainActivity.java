@@ -4,14 +4,52 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.textservice.TextInfo;
+import android.widget.Button;
+import android.widget.TextView;
 
 
 public class MainActivity extends ActionBarActivity {
+    Button rngBtn;
+    Button qotdBtn;
+    Button submitBtn;
+    TextView points;
+    TextView textLine;
+    private final static  String URL1 =
+            "http://<endpoint>/quote?minlength=100&maxlength=300&api_key=<key>";
+    
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        qotdBtn = (Button)findViewById(R.id.qotdBtn);
+        rngBtn = (Button) findViewById(R.id.rngBtn);
+        submitBtn = (Button)findViewById(R.id.submitBtn);
+        points = (TextView)findViewById(R.id.points);
+        textLine = (TextView)findViewById(R.id.textLine);
+
+        qotdBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //put Qotd code here
+            }
+        });
+        rngBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //put rng code here
+            }
+        });
+
+        submitBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //submit code here
+            }
+        });
     }
 
 
