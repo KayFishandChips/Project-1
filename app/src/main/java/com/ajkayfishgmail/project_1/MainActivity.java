@@ -9,16 +9,21 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.textservice.TextInfo;
 import android.widget.Button;
+import android.widget.GridLayout;
 import android.widget.TextView;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+
 
 
 public class MainActivity extends ActionBarActivity {
@@ -27,8 +32,9 @@ public class MainActivity extends ActionBarActivity {
     Button submitBtn;
     TextView points;
     TextView textLine;
+    GridLayout btnGrid;
     private final static  String URL1 =
-            "http://api.theysaidso.com/qod";
+            "http://api.theysaidso.com/qod.json";
 
 
 
@@ -41,6 +47,7 @@ public class MainActivity extends ActionBarActivity {
         submitBtn = (Button)findViewById(R.id.submitBtn);
         points = (TextView)findViewById(R.id.points);
         textLine = (TextView)findViewById(R.id.textLine);
+        btnGrid = (GridLayout)findViewById(R.id.btnGrid);
 
         qotdBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -50,12 +57,7 @@ public class MainActivity extends ActionBarActivity {
                 t.execute();
             }
         });
-        rngBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //put rng code here
-            }
-        });
+
 
         submitBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -63,6 +65,7 @@ public class MainActivity extends ActionBarActivity {
                 //submit code here
             }
         });
+
     }
 
     private class QotdTask extends AsyncTask<Void, Void, String>
@@ -99,7 +102,37 @@ public class MainActivity extends ActionBarActivity {
         @Override
         protected  void onPostExecute(String sb)
         {
+            String[] k;
 
+
+            JSONObject quoteParts = null;
+            try{
+                quoteParts = new JSONObject(sb);
+                String quote = quoteParts.getString("quote");
+                k = quote.replace(".", " ").replace(",", " ").replace("!"," ").replace("?", " "
+                ).split(" ");
+
+                Button[] btn = new Button[k.length];
+
+                for(int i = 0; i > k.length; i++)
+                {
+                    btn[i].setText(k[i]) ;
+                    btnGrid.addView(btn[i],i);
+                    btn[i].setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            //add string append here
+                        }
+                    });
+
+                }
+
+
+            }
+            catch (JSONException e)
+            {
+                Log.e("Oops!", "Error while trying to laod up your quote " + e.getMessage());
+            }
         }
     }
 
