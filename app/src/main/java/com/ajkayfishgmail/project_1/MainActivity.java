@@ -1,6 +1,9 @@
 package com.ajkayfishgmail.project_1;
 
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.os.AsyncTask;
+import android.os.Message;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -23,16 +26,19 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 
 public class MainActivity extends ActionBarActivity {
-    Button rngBtn;
+    //Button rngBtn;
     Button qotdBtn;
     Button submitBtn;
     TextView points;
     TextView textLine;
     GridLayout btnGrid;
+    int point = 0;
     private final static  String URL1 =
             "http://api.theysaidso.com/qod.json";
 
@@ -43,7 +49,7 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         qotdBtn = (Button)findViewById(R.id.qotdBtn);
-        rngBtn = (Button) findViewById(R.id.rngBtn);
+       // rngBtn = (Button) findViewById(R.id.rngBtn);
         submitBtn = (Button)findViewById(R.id.submitBtn);
         points = (TextView)findViewById(R.id.points);
         textLine = (TextView)findViewById(R.id.textLine);
@@ -58,20 +64,21 @@ public class MainActivity extends ActionBarActivity {
             }
         });
 
-
-        submitBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //submit code here
-            }
-        });
-
     }
 
-    private class QotdTask extends AsyncTask<Void, Void, String>
+    private class QotdTask extends AsyncTask<String, Void, String>
     {
+       ProgressDialog progressd ;
+
+
         @Override
-        protected String doInBackground(Void... params)
+        protected  void onPreExecute()
+        {
+            progressd.setMessage("Getting your info Wait just a moment");
+            progressd.show();
+        }
+        @Override
+        protected String doInBackground(String... params)
         {
             HttpClient client = new DefaultHttpClient();
             HttpGet hget = new HttpGet(URL1);
@@ -88,9 +95,13 @@ public class MainActivity extends ActionBarActivity {
 
                 while(len != -1)
                 {
-                    sb.append(buffer,0,1024);
+                    sb.append(buffer,0,len);
+                    len = reader.read(buffer,0,1024);
                 }
+                System.out.print(sb);
+                progressd.dismiss();
                 return sb.toString();
+
             }
             catch (IOException e)
             {
@@ -104,29 +115,48 @@ public class MainActivity extends ActionBarActivity {
         {
             String[] k;
 
+//String jsonString = obj.tostring(1)
 
-            JSONObject quoteParts = null;
             try{
-                quoteParts = new JSONObject(sb);
-                String quote = quoteParts.getString("quote");
-                k = quote.replace(".", " ").replace(",", " ").replace("!"," ").replace("?", " "
+                JSONObject js = new JSONObject(sb);
+
+                JSONArray quote = js.getJSONArray("contents");
+                JSONObject quoteWord = quote.getJSONObject(1).getJSONObject("quote");
+
+               final String word = quoteWord.toString();
+
+
+                k = word.replace(".", " ").replace(",", " ").replace("!"," ").replace("?", " "
                 ).split(" ");
+                Collections.shuffle(Arrays.asList(k));
 
                 Button[] btn = new Button[k.length];
+                 String q = new String();
 
-                for(int i = 0; i > k.length; i++)
+                for(int i = 0; i < k.length; i++)
                 {
                     btn[i].setText(k[i]) ;
                     btnGrid.addView(btn[i],i);
                     btn[i].setOnClickListener(new View.OnClickListener() {
                         @Override
-                        public void onClick(View v) {
-                            //add string append here
+                        public void onClick(View v)
+                        {
+                          // textLine.setText(k[i].getText);
                         }
                     });
 
-                }
 
+                }
+                 submitBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if( textLine.getText().equals(word))
+                        {
+                            point = point + 10;
+                            points.setText(String.valueOf(point));
+                        }
+                    }
+                });
 
             }
             catch (JSONException e)
